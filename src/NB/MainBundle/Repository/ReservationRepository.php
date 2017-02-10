@@ -49,6 +49,50 @@ class ReservationRepository extends \Doctrine\ORM\EntityRepository
         return $results;
 
     }
+
+    public function billetVendus($from, $to){
+
+        $queryBuilder = $this
+            ->createQueryBuilder('r')
+            ->where('r.confirmed = :con')
+            ->andWhere('r.dateAdd BETWEEN :from and :to')
+            ->setParameters([
+                'con' => true,
+                'from' => $from,
+                'to' => $to
+            ])
+
+
+        ;
+
+        $query = $queryBuilder->getQuery();
+        $result = $query->getScalarResult();
+
+
+
+        return ($result != null)?$result:0;
+
+
+
+    }
+
+     public function billetNonConfirmes($from, $to)
+     {
+         $queryBuilder = $this
+             ->createQueryBuilder('r')
+             ->select('count(r.id) as total')
+             ->where('r.confirmed= :con')
+             ->andWhere('r.dateAdd BETWEEN :from and :to')
+             ->setParameters([
+                 'con' => false,
+                 'from' => $from,
+                 'to' => $to
+             ]);
+         $query =  $queryBuilder->getQuery();
+
+         $result = $query->getResult();
+         return $result[0];
+     }
 }
 
 
